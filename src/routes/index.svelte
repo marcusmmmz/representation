@@ -8,14 +8,15 @@
 	}
 
 	let treeNodeSize = 50;
-	let gap = 10;
+	let xGap = 10;
+	let yGap = 20;
 
 	function getTreeWidth(tree: Tree<any>) {
 		if (tree.children.length == 0) return treeNodeSize;
 
 		return tree.children
 			.map((child) => getTreeWidth(child))
-			.reduce((pv, cv) => pv + cv + gap, 0);
+			.reduce((pv, cv) => pv + cv + xGap, 0);
 	}
 
 	function drawTree(
@@ -33,11 +34,21 @@
 			drawTree(
 				ctx,
 				child,
-				startingPoint + width / 2 + gap / 2,
-				y + treeNodeSize + gap
+				startingPoint + width / 2 + xGap / 2,
+				y + treeNodeSize + yGap
 			);
 
-			startingPoint += width + gap;
+			ctx.strokeStyle = "#ffffff";
+			ctx.lineWidth = 4;
+			ctx.beginPath();
+			ctx.moveTo(x + treeNodeSize / 2, y + treeNodeSize);
+			ctx.lineTo(
+				startingPoint + width / 2 + xGap / 2 + treeNodeSize / 2,
+				y + treeNodeSize + yGap
+			);
+			ctx.stroke();
+
+			startingPoint += width + xGap;
 		});
 
 		drawTreeNode(ctx, tree.value, x, y);
