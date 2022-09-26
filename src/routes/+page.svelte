@@ -3,15 +3,23 @@
 
 	let canvas: HTMLCanvasElement;
 
-	class Tree<T> {
-		constructor(public value: T, public children: Tree<T>[] = []) {}
+	interface Tree<T> {
+		value: T;
+		children: Tree<T>[];
+	}
+
+	function createTree<T>(value: T, children: Tree<T>[] = []) {
+		return {
+			value,
+			children,
+		};
 	}
 
 	let treeNodeSize = 50;
 	let xGap = 10;
 	let yGap = 20;
 
-	function getTreeWidth(tree: Tree<any>) {
+	function getTreeWidth(tree: Tree<any>): number {
 		if (tree.children.length == 0) return treeNodeSize;
 
 		return tree.children
@@ -71,16 +79,18 @@
 	onMount(() => {
 		let ctx = canvas.getContext("2d");
 
+		if (!ctx) return;
+
 		ctx.fillStyle = "#000000";
 		ctx.fillRect(0, 0, 1000, 1000);
 
 		drawTree(
 			ctx,
-			new Tree("root", [
-				new Tree("a", [new Tree("e"), new Tree("f")]),
-				new Tree("b"),
-				new Tree("c"),
-				new Tree("d")
+			createTree("root", [
+				createTree("a", [createTree("e"), createTree("f")]),
+				createTree("b"),
+				createTree("c"),
+				createTree("d"),
 			]),
 			500,
 			100
@@ -88,14 +98,14 @@
 
 		drawTree(
 			ctx,
-			new Tree("root", [
-				new Tree("a", [new Tree("d"), new Tree("e")]),
-				new Tree("b", []),
-				new Tree("c", [
-					new Tree("f", [new Tree("i"), new Tree("j")]),
-					new Tree("g"),
-					new Tree("h")
-				])
+			createTree("root", [
+				createTree("a", [createTree("d"), createTree("e")]),
+				createTree("b", []),
+				createTree("c", [
+					createTree("f", [createTree("i"), createTree("j")]),
+					createTree("g"),
+					createTree("h"),
+				]),
 			]),
 			500,
 			500
