@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 
-	let canvas: HTMLCanvasElement;
-
 	interface Tree<T> {
 		value: T;
 		children: Tree<T>[];
@@ -14,6 +12,10 @@
 			children,
 		};
 	}
+
+	let canvas: HTMLCanvasElement;
+
+	let tree: Tree<string> = createTree("root");
 
 	let treeNodeSize = 50;
 	let xGap = 10;
@@ -76,7 +78,7 @@
 		ctx.fillText(text, x, y + treeNodeSize / 2);
 	}
 
-	onMount(() => {
+	function drawEverything() {
 		let ctx = canvas.getContext("2d");
 
 		if (!ctx) return;
@@ -84,46 +86,56 @@
 		ctx.fillStyle = "#000000";
 		ctx.fillRect(0, 0, 1000, 1000);
 
-		drawTree(
-			ctx,
-			createTree("root", [
-				createTree("a", [createTree("e"), createTree("f")]),
-				createTree("b"),
-				createTree("c"),
-				createTree("d"),
-			]),
-			500,
-			100
-		);
+		drawTree(ctx, tree, 500, 100);
+	}
 
-		drawTree(
-			ctx,
-			createTree("root", [
-				createTree("a", [createTree("d"), createTree("e")]),
-				createTree("b", []),
-				createTree("c", [
-					createTree("f", [createTree("i"), createTree("j")]),
-					createTree("g"),
-					createTree("h"),
-				]),
-			]),
-			500,
-			500
-		);
-	});
+	async function copyTreeToClipboard() {
+		try {
+			let str = JSON.stringify(tree);
+			await navigator.clipboard.writeText(str);
+			alert("Tree copied to clipboard");
+		} catch {
+			alert("Invalid JSON");
+		}
+	}
+
+	async function pasteTreeFromClipboard() {
+		let string = await navigator.clipboard.readText();
+
+		try {
+			tree = JSON.parse(string);
+			drawEverything();
+		} catch {
+			alert("Invalid JSON provided");
+		}
+	}
+
+	onMount(drawEverything);
 </script>
 
-<canvas bind:this={canvas} width="1000" height="1000" />
+<div>
+	<button on:click={copyTreeToClipboard}>Copy tree to clipboard (JSON)</button>
+	<button on:click={pasteTreeFromClipboard}
+		>Paste tree from clipboard (JSON)</button
+	>
+
+	<canvas bind:this={canvas} width="1000" height="1000" />
+</div>
 
 <style>
-	:global(body) {
+	:global(body),
+	:global(html) {
 		margin: 0;
 	}
-	:global(html, body, body > div) {
-		height: 100%;
+	div {
+		display: flex;
+		flex-direction: column;
+
+		width: 99vmin;
+		height: 99vmin;
 	}
 	canvas {
-		width: 100vmin;
-		height: 100vmin;
+		width: 100%;
+		height: 100%;
 	}
 </style>
